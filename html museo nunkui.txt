@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Museo Virtual Awajún “Núnkui”</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body class="bg-green-50 text-gray-800">
+  <header class="bg-green-700 text-white p-6 shadow">
+    <h1 class="text-3xl font-bold text-center">Museo Virtual Awajún “Núgkui”</h1>
+    <p class="text-center text-green-200 italic">Espíritu de la Madre Tierra</p>
+  </header>
+
+  <main class="p-6 max-w-4xl mx-auto">
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">Sube tu video cultural Awajún</h2>
+      <form class="bg-white p-4 rounded shadow" id="uploadForm">
+        <label class="block mb-2 font-medium" for="videoTitle">Título del video</label>
+        <input class="w-full border p-2 rounded mb-4" type="text" id="videoTitle" required>
+
+        <label class="block mb-2 font-medium" for="videoFile">Selecciona un archivo de video</label>
+        <input class="w-full border p-2 rounded mb-4" type="file" id="videoFile" accept="video/*" required>
+
+        <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded" type="submit">Subir Video</button>
+      </form>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-semibold mb-4">Galería de videos</h2>
+      <div id="videoGallery" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Videos se agregarán aquí dinámicamente -->
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Configura tu Firebase aquí
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY",
+      authDomain: "TU_AUTH_DOMAIN",
+      projectId: "TU_PROJECT_ID",
+      storageBucket: "TU_STORAGE_BUCKET",
+      messagingSenderId: "TU_MESSAGING_SENDER_ID",
+      appId: "TU_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const storage = firebase.storage();
+
+    const form = document.getElementById('uploadForm');
+    const gallery = document.getElementById('videoGallery');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('videoTitle').value;
+      const fileInput = document.getElementById('videoFile');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const storageRef = storage.ref('videos/' + file.name);
+        storageRef.put(file).then((snapshot) => {
+          snapshot.ref.getDownloadURL().then((url) => {
+            const videoCard = document.createElement('div');
+            videoCard.className = 'bg-white p-4 rounded shadow';
+            videoCard.innerHTML = `
+              <h3 class="text-lg font-semibold mb-2">${title}</h3>
+              <video controls class="w-full rounded">
+                <source src="${url}" type="video/mp4">
+                Tu navegador no soporta el video.
+              </video>
+            `;
+            gallery.prepend(videoCard);
+          });
+        });
+
+        form.reset();
+      }
+    });
+  </script>
+</body>
+</html>
